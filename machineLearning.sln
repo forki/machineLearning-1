@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsLab.Journal", "FsLab.Journal.fsproj", "{12670CAB-1F4A-4D02-AE1D-44CFC4E1E40A}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "machineLearning", "machineLearning.fsproj", "{12670CAB-1F4A-4D02-AE1D-44CFC4E1E40A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
