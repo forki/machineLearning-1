@@ -7,6 +7,11 @@ module Week3
 #r "MathNet.Numerics.Data.Matlab.dll"
 #r "MathNet.Numerics.Data.Text.dll"
 
+#r "packages/Accord/lib/net45/Accord.dll"
+#r "packages/Accord.Math/lib/net45/Accord.Math.Core.dll"
+#r "packages/Accord.Math/lib/net45/Accord.Math.dll"
+#r "packages/Accord.Statistics/lib/net45/Accord.Statistics.dll"
+
 open MathNet.Numerics
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.Data.Text
@@ -15,12 +20,13 @@ open XPlot.GoogleCharts
 open System.Linq
 open System.IO
 open System
+open System.Globalization
+open Accord.Statistics.Models.Regression
+open Accord.Statistics.Models.Regression.Fitting
 
 let fileName = Path.Combine(__SOURCE_DIRECTORY__, "ex2data1.txt")
-
 let data = DelimitedReader.Read<double>(
-            fileName, false, ",", true)
-
+            fileName, false, ",", true, new CultureInfo("en-US"))
 let X = data.RemoveColumn(2)
 let y = data.Column(2)
 
@@ -58,15 +64,33 @@ let t = vector [3.0; 5.0]
 let x = vector [2.0; 7.0]
 hypothesis t x
 
-#load "week2.fsx"
-let XX = week2.addIntercept X
-
 let computeCost (m:Matrix<double>) (v:Vector<double>) (t:Vector<double>) =
     let m' = v.Count
     // (1/m)*sum(-y'*log(sigmoid(X*theta))-(1-y')*log(1-sigmoid(X*theta)))
     let tmp = -v * MathOps.Log (MathOps.Sigmoid (m * t)) + (y - 1.) * MathOps.Log (1.0 - MathOps.Sigmoid (m * t))
     tmp / (float m')
 
-let initialTheta = DenseVector.create XX.RowCount 0.0 
 
- 
+
+let regression = new LogisticRegression()
+regression.NumberOfInputs <- 2
+
+let input = X.ToRowArrays()
+let output = y |> Seq.toArray |> Array.map (fun g -> int g)
+
+
+let learner = new IterativeReweightedLeastSquares(regression)
+learner.Tolerance <- 1e-6  // Let's set some convergence parameters
+learner.Iterations <- 400  // maximum number of iterations to perform
+learner.Regularization <- 0.
+
+let reg = learner.Learn(input, output)
+
+let computeOutput = reg.Score ([| 45.; 85. |])
+
+
+let compCost (t : double[]) =
+    let theta = DenseVector.ofArray t
+    computeCost X y theta
+
+let f = new System.Func<double[], double>(compCost)

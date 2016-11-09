@@ -1,6 +1,12 @@
 FRAMEWORK: >= NET40
 NUGET
   remote: http://www.nuget.org/api/v2
+    Accord (3.3)
+    Accord.Math (3.3)
+      Accord (>= 3.3)
+    Accord.Statistics (3.3)
+      Accord (>= 3.3)
+      Accord.Math (>= 3.3)
     Deedle (1.2.5)
     Deedle.RPlugin (1.2.5)
       Deedle (>= 1.2.5)
