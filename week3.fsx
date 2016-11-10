@@ -23,6 +23,7 @@ open System
 open System.Globalization
 open Accord.Statistics.Models.Regression
 open Accord.Statistics.Models.Regression.Fitting
+open Accord.Math.Optimization
 
 let fileName = Path.Combine(__SOURCE_DIRECTORY__, "ex2data1.txt")
 let data = DelimitedReader.Read<double>(
@@ -70,7 +71,9 @@ let computeCost (m:Matrix<double>) (v:Vector<double>) (t:Vector<double>) =
     let tmp = -v * MathOps.Log (MathOps.Sigmoid (m * t)) + (y - 1.) * MathOps.Log (1.0 - MathOps.Sigmoid (m * t))
     tmp / (float m')
 
-
+let gradient (m:Matrix<double>) (v:Vector<double>) (t:Vector<double>) =
+    let m' = v.Count
+    (1. / float m') * m.Transpose() * (MathOps.Sigmoid (m * t) - v)
 
 let regression = new LogisticRegression()
 regression.NumberOfInputs <- 2
@@ -88,9 +91,31 @@ let reg = learner.Learn(input, output)
 
 let computeOutput = reg.Score ([| 45.; 85. |])
 
+let addIntercept (m : Matrix<double>) =
+    let rows = m.RowCount
+    let intercept = DenseVector.init rows (fun _ -> 1.0)
+    m.InsertColumn(0, intercept)
+
+let X' = addIntercept X 
 
 let compCost (t : double[]) =
     let theta = DenseVector.ofArray t
-    computeCost X y theta
+    computeCost X' y theta
+
+let grad (t : double[]) =
+    let theta = DenseVector.ofArray t
+    let tmp = gradient X' y theta
+    tmp.ToArray()
 
 let f = new System.Func<double[], double>(compCost)
+
+let g = new System.Func<double[], double[]>(grad)
+
+let numberOfVariables = X'.ColumnCount
+let lbfgs = new BroydenFletcherGoldfarbShanno(numberOfVariables, f, g)
+
+let success = lbfgs.Minimize();
+let minValue = lbfgs.Value;
+let solution = lbfgs.Solution;
+
+lbfgs.Status
