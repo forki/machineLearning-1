@@ -1,5 +1,3 @@
-module Exercise3
-
 #load "exercise2.fsx"
 #load "packages/FsLab/FsLab.fsx"
 

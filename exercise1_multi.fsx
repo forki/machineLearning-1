@@ -1,6 +1,4 @@
-﻿module Exercise1_multi
-
-#load "exercise1.fsx"
+﻿#load "exercise1.fsx"
 #load "packages/FsLab/FsLab.fsx"
 #I "packages/MathNet.Numerics.Data.Matlab/lib/net40/"
 #I "packages/MathNet.Numerics.Data.Text/lib/net40/"
@@ -12,10 +10,9 @@ open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.Data.Text
 open MathNet.Numerics.Statistics;
 open XPlot.GoogleCharts
-let data = DelimitedReader.Read<double>(
-             "/Users/carsten/Projects/courseraMachineLearning/machine-learning-ex1/ex1/ex1data2.txt",
-             false, ",", true);
-
+open System.IO
+let fileName = Path.Combine(__SOURCE_DIRECTORY__, "ex2data1.txt")
+let data = DelimitedReader.Read<double>(fileName, sparse = false, delimiter = ",", hasHeaders = false)
 let X' = data.RemoveColumn(2)
 let y = data.Column(2)
 
@@ -23,18 +20,18 @@ let m = y.Count
 
 let featureNormalize (m : Matrix<double>) =
      let colArrays = m.ToColumnArrays()
-     let mean = colArrays |> Array.map (fun x -> Statistics.Mean x)
-     let std = colArrays |> Array.map (fun x -> Statistics.StandardDeviation x)
+     let mean = colArrays |> Array.map Statistics.Mean
+     let std = colArrays |> Array.map Statistics.StandardDeviation
      m.MapIndexed (fun i j _ -> (m.At(i, j) - mean.[j]) / std.[j]), mean, std
 
 let normalized, mean, std = featureNormalize X'
 
-let X = week2.addIntercept normalized
+let X = Exercise1.addIntercept normalized
 
 let alpha = 0.01
 let num_iters = 400
 
-let initialTheta = vector [0.;0.;0.]    
+let initialTheta = vector [0.0; 0.0; 0.0]    
 
 let computeCostMulti (m : Matrix<double>) (v : Vector<double>) (t : Vector<double>) =
     let res = m * t - v

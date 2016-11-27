@@ -55,10 +55,11 @@
     <None Include="build.fsx" />
     <Compile Include="Runner.fs" />
     <None Include="Tutorial.fsx" />
-    <Compile Include="week2.fsx" />
-    <None Include="week2_multi.fsx" />
-    <Compile Include="week3.fsx" />
     <None Include="ex2data1.txt" />
+    <Compile Include="exercise1_multi.fsx" />
+    <Compile Include="exercise1.fsx" />
+    <Compile Include="exercise2.fsx" />
+    <Compile Include="exercise3.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
